@@ -1,0 +1,10 @@
+# Temp & Office lock files
+*.tmp
+~$*
+
+# PowerPoint repair artifacts
+*.repaired.pptx
+
+# Iterative fix/patch scripts
+ds_candidate_assignment/fix_*.py
+ds_candidate_assignment/audit_*.py

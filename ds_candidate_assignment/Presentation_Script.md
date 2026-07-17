@@ -2,7 +2,7 @@
 
 > **Audience:** Mixed (technical panel + business stakeholders)
 > **Total time target:** 20–25 minutes (slides 1–11) + 5 min Q&A
-> **Appendix slides:** Reference only during Q&A
+> **Appendix A:** Production pipeline — reference only during Q&A
 > **How to use this script:** Read it all once. Highlight what resonates. Cut what doesn't. The goal is to have more material than you need so you can speak naturally rather than rushing to fill time.
 
 ---
@@ -360,63 +360,53 @@ The segment distribution chart at the bottom of the slide confirms that the mode
 
 ---
 
-## SLIDE 9 — Summary
+## SLIDE 9 — Business Impact
 
-*[60–90 seconds. This is your four-card summary. Speak it as a crisp, confident statement of what was delivered. Don't undersell.]*
+*[60–90 seconds. Three big numbers, then the three-tier playbook. This is the 'so what' moment — speak it like you mean it.]*
 
-"Let me pull everything together before we get to limitations and conclusions.
+"This slide answers the question every business stakeholder in the room is actually asking: what does this analysis give Spendy that it didn't have before?
 
-Four outcomes from this analysis.
+Three things.
 
-**Loyalty Defined.** A five-component AND/OR definition that directly solves the Brand Loyalist Problem. 4.6% loyalty rate — 6,273 users who have genuinely earned the label across frequency, spend, recency, tenure, and platform loyalty evidence simultaneously. Conservative by design. Defensible with data.
+**6,273 loyal customers — identified for the first time.**
 
-**Early Prediction.** A Random Forest model with a ROC-AUC of 0.912. Trained on five features engineered from the first 60 days of each user's transaction history. No data leakage. Scores are available at Month 2 — the earliest actionable intervention window.
+Spendy now has a formal answer to 'who are our loyal customers?' It didn't have one before. 6,273 users, named and scored, who cleared every component of the loyalty definition. That's a list you can action immediately.
 
-**Actionable Segments.** Three customer tiers, each with a clear and distinct marketing playbook. The High segment's 83.9% observed loyalty rate is the validation that the model's confident predictions can be trusted. This isn't theoretical segmentation — it's backed by observed outcomes.
+**Month 2 — the earliest scoring window.**
 
-**Production Ready.** The architecture is designed to be deployed. Monthly batch pipeline. Quarterly retraining with a minimum AUC gate before any model update goes live. A/B testing framework built into the design from the start. This is a notebook that is ready to become a system."
+The model scores new users after 60 days. That's before the habits are fixed, before the user has decided whether Spendy is part of their life or not. A well-placed incentive at month two is cheap and effective. Waiting until month twelve means you're either reinforcing an outcome that already happened or fighting churn that started six months ago.
+
+**83.9% actual loyalty in the High segment.**
+
+Four in five users the model was confident about turned out to be genuinely loyal. That's not a model metric — it's an observed real-world outcome. When the model says High, it's almost always right.
+
+And the bottom half of the slide is the operational output — three tiers, three distinct actions.
+
+High, above 66%: reinforce. Acknowledge loyalty early. Exclusive offers, status recognition, make them feel seen before a competitor does.
+
+Medium, 33 to 66%: nudge. Targeted spend incentive or a merchant discovery prompt to close the loyalty gap. Usually the missing signal is a second merchant visit.
+
+Low, below 33%: deprioritise. Investigate re-engagement or redirect budget to the segments where it moves outcomes."
 
 *[Advance slide.]*
 
 ---
 
-## SLIDE 10 — Limitations
+## SLIDE 10 — Future Improvements
 
-*[2 minutes. Proactively raising limitations is a sign of maturity and self-awareness. Don't be defensive — be analytical. Frame each limitation with both the honest problem AND the concrete fix.]*
+*[60–90 seconds. Show self-awareness, not defensiveness. Go through the five quickly — don't dwell on any one.]*
 
-"I want to spend a few minutes on what this analysis doesn't do well, and what I'd do to address each limitation.
+"The analysis was built on one dataset covering seven months. There are five clear directions to extend it, all of which came directly out of the notebook.
 
-Being upfront about these is important to me — I'd rather name them myself than have them come up in questions as unexpected gaps.
+**One — longer observation period.** Seven months gives us enough to build a model, but not enough to validate the loyalty definition across a full seasonal cycle. A full year or more of data would provide more loyal-class examples and let us test whether the 4.6% rate holds across different periods.
 
-**Limitation 1 — Recall of 0.45.**
+**Two — richer transaction data.** The dataset has five columns — transaction ID, user, shop, timestamp, price. No product categories, no demographics, no promotion history, no marketing channel data. Any of those would meaningfully improve signal. Shop categories alone would transform the unique-shops feature — visiting a grocery store and a pharmacy is very different from visiting the same merchant twice.
 
-At the default threshold, we're catching less than half of future loyal users. The primary cause is the small positive training set — only 1,108 loyal users out of 34,420.
+**Three — additional behavioural features.** Purchase regularity within the 60-day window is something we couldn't fully capture with the current features. A feature tracking whether a user buys in both weeks of each month — not just the aggregate count — would help identify customers who are building a genuine habit versus those who burst and fade.
 
-The fixes: first, lower the classification threshold. Moving from 0.5 to 0.3 trades some precision for recall — more users get the 'likely loyal' label, including more actual loyal users, but also more false positives. Whether that trade-off makes business sense depends on the cost of a campaign versus the value of a converted loyal user. Second, try Gradient Boosting — XGBoost or LightGBM typically improve recall on imbalanced datasets through their sequential error correction mechanism. Third, the training set grows naturally over time. As Spendy accumulates more loyal users, future model versions will have more positive examples to learn from, and recall will improve.
+**Four — model refinement.** Gradient Boosting with calibrated predicted probabilities is the natural next comparison. I'd expect a meaningful recall improvement. Calibrated probabilities also make the segment thresholds more reliable in production — a score of 0.70 should genuinely mean 70% probability, which requires explicit calibration that Random Forest doesn't provide natively.
 
-**Limitation 2 — Feature constraints.**
-
-The dataset has only five columns: purchase ID, user ID, shop ID, timestamp, and price. That's it. No product categories, no demographics, no campaign interaction data, no device information, no location. Five features is the most we can responsibly extract from three meaningful columns.
-
-With richer data, the feature set could expand significantly. Shop categories alone would transform the unique_shops signal — visiting a fashion merchant and an electronics merchant is very different from visiting two grocery stores. Campaign response data would let us measure early sensitivity to incentives. Demographics would allow segmentation before the first purchase is even made.
-
-**Limitation 3 — The sustained activity proxy.**
-
-One path to qualifying as loyal is being active in 6 of 7 months. That's a seven-month phenomenon — and our feature window is only 60 days. We cannot observe 7 months of activity at month 2. The spend_month_comparison feature is a partial proxy — momentum in spending from month one to month two is correlated with sustained long-term engagement — but it's an imperfect substitute. This is why unique_shops has such low feature importance at 6%. Many users who will eventually use multiple shops simply haven't made that second merchant visit by day 60.
-
-The fix: revisit the model using a longer feature window — say, 90 or 120 days — once enough users have that history. A longer window allows more of the platform loyalty signal to be observed directly, rather than proxied.
-
-**Limitation 4 — Threshold calibration.**
-
-The 4.6% loyalty threshold and the 33%/66% segment thresholds are starting points grounded in data, not production-calibrated values. They should ultimately be set based on programme economics — at what probability does the expected revenue uplift from a converted loyal user exceed the cost of the reward? That's a decision-theory calculation that requires LTV data and reward cost data, neither of which is in this dataset.
-
-The fix: once LTV and reward programme data is available, run a formal cost-benefit analysis. The model's probability scores are the input. Finance and marketing own the parameters. Data science optimises the threshold given those parameters.
-
-**Limitation 5 — No external validation.**
-
-The loyalty definition has been validated for internal consistency — the loyalty rate stabilises at 4.6% from September onward, which is what you'd expect from a well-calibrated definition. But it hasn't been validated against external truth. Do loyal users actually churn less? Do they generate more revenue over a 12-month horizon?
-
-The fix is straightforward: once historical LTV data is available, cross-validate. Run a t-test or survival analysis comparing loyal vs non-loyal users on 12-month revenue and churn rate. If loyal users significantly outperform on both dimensions, the definition is confirmed. If not, the thresholds need revisiting."
+**Five — business-driven segmentation.** The 33% and 66% cutoffs are heuristic starting points. The right way to set them is via decision theory: at what probability does the expected ROI of a marketing action become positive? That requires campaign cost and LTV data — a business and finance conversation, not a modelling one."
 
 *[Advance slide.]*
 
@@ -454,57 +444,27 @@ Thank you — I'm very happy to take questions."
 
 ---
 
-## APPENDIX A — RF vs Alternative Models
-
-*[Use this section if asked: 'Why not XGBoost?' / 'Why not Logistic Regression?' / 'Have you tried neural networks?' / 'What other models did you consider?']*
-
-"I do have a slide on this — Appendix A — that covers the model comparison directly. Let me walk through the reasoning.
-
-**Why not Logistic Regression?**
-
-Logistic Regression is a fundamentally linear model. It learns a weighted sum of features and passes it through a sigmoid function to produce a probability. That works well when the relationship between features and outcome is approximately linear — when increasing a feature by one unit produces a roughly constant change in outcome probability.
-
-But that's not the case here. The loyalty label is constructed from hard thresholds. Below ¥10,000 a month in spend, you're not loyal, regardless of frequency. Above it, you might be. That's a step function, not a linear relationship. Logistic Regression would try to draw a straight line through what is fundamentally a multi-dimensional threshold boundary — and it would do it badly.
-
-There's also the feature scale problem. spend_rate_2m goes up to tens of thousands of JPY, while freq_rate_2m sits between 0 and 10. Logistic Regression is sensitive to feature scale — you'd need to standardise everything before training, which adds a preprocessing step. And spend_rate_2m and spend_month_comparison are correlated, since both derive from spend data. Correlated features cause instability in Logistic Regression coefficients. Random Forest handles both of these issues natively.
-
-**Why not XGBoost or LightGBM?**
-
-They're the obvious next step, and I'd compare them in the next iteration. Gradient Boosting models build trees sequentially — each new tree focuses on the examples the previous trees got wrong. In an imbalanced dataset like ours where loyal users are rare, the sequential error correction naturally focuses more attention on the minority class. I'd expect a 1 to 3 percentage point AUC improvement, and a more significant recall improvement.
-
-The reason I used Random Forest as the baseline: it requires much less tuning. Random Forest with 100 trees and default settings is a strong baseline. Gradient Boosting has multiple hyperparameters — learning rate, maximum tree depth, sub-sampling ratio, regularisation — that interact with each other and need to be tuned carefully to avoid overfitting, especially with a small positive class. For an initial analysis, Random Forest gives a reliable result faster.
-
-**Why not a neural network?**
-
-Neural networks need large datasets to generalise well — typically tens of thousands of examples of each class, or careful regularisation and dropout strategies to handle small data. We have 34,420 training users, but only 1,108 of them are loyal. With 5 input features and 1,108 positive examples, a neural network would overfit dramatically. The model would essentially memorise the training examples rather than learning generalisable patterns.
-
-Beyond the data size problem, there's an interpretability problem. When you need to explain to a CFO or a CMO why a user scored 0.87, a Random Forest can show you: this user's spend rate is in the top decile, their frequency is above threshold, their recency is strong. A neural network gives you weights in hidden layers that don't map to any human-interpretable concept. For a business application where stakeholders need to trust and interrogate the model, tree-based models win on interpretability.
-
-Tree-based models consistently outperform deep learning on structured tabular data at this scale. This is well-established in the academic literature and in industry practice."
-
----
-
-## APPENDIX B — Production Pipeline
+## APPENDIX A — Production Pipeline
 
 *[Use this section if asked: 'How would this work in production?' / 'What's the deployment plan?' / 'How do you monitor model drift?']*
 
-"The production architecture has four layers — I've sketched them out in Appendix B.
+"The pipeline has six stages — three in each row on the slide.
 
-**Layer 1 — Data & Feature Pipeline.**
+**Row 1: getting data into a score.**
 
-Transactions flow into a data warehouse — BigQuery or S3 depending on the stack. On a monthly schedule, an orchestration trigger — something like AWS EventBridge or Apache Airflow — kicks off the feature pipeline. The pipeline identifies every new user who crossed their 60-day mark since the last run and computes the five features from their first 60 days of transactions. This can be implemented in dbt for transformation logic or Apache Beam for distributed processing if the user volume is large. The output is a feature table: one row per new user, five columns.
+Data Ingestion: transactions land in BigQuery or S3. On the first of each month, an EventBridge trigger fires the pipeline.
 
-**Layer 2 — Scoring & Segmentation.**
+Feature Pipeline: for every user who crossed their 60-day mark since the last run, we compute the five features from days 0–60. This is a straightforward dbt or Apache Beam job — one row per user, five columns out.
 
-The current model — a serialised RandomForest object from scikit-learn, stored in a model registry — loads the feature table and calls predict_proba() on all new feature vectors. Each user gets a probability score between 0 and 1, and a segment label: Low, Medium, or High based on the 0.33/0.66 thresholds. These results are written back to the CRM or marketing platform within the same day. Marketing automation can then immediately begin delivering the appropriate campaign to each segment.
+Model Scoring: the serialised RandomForest object calls predict_proba() on that feature table. Each user gets a probability between 0 and 1.
 
-**Layer 3 — Monitoring & Drift Detection.**
+**Row 2: turning a score into an action.**
 
-Models degrade silently if the input data distribution changes. We monitor for this in two ways. First, a Kolmogorov-Smirnov test on each of the five feature distributions every month, comparing the current month's distribution to the baseline distribution from the training period. If any feature shifts by more than 5%, that's a flag for investigation — it may mean the user composition has changed, or a data pipeline issue has introduced noise. Second, we track the observed loyalty rate per segment as lagged ground truth. At 6 months post-scoring, we can look back at users who received a High likelihood score and check what fraction actually became loyal. If that rate drops significantly below 83.9%, the model is drifting and needs retraining.
+Segmentation: the probability maps to a tier label — High above 0.66, Medium between 0.33 and 0.66, Low below 0.33. Those labels get written to the CRM or marketing automation platform. Marketing runs the appropriate campaign for each tier immediately.
 
-**Layer 4 — Governance & Retraining.**
+Monitoring: two checks run monthly. A KS-test on each feature distribution against the training baseline — if a feature shifts significantly, something has changed in the user population or the data pipeline. And lagged ground truth tracking — at six months post-scoring, we check what fraction of High-scored users actually became loyal. If that drops materially below 83.9%, the model is drifting.
 
-Quarterly model review. The new model candidate is trained on the most recent data, and its ROC-AUC is measured on a held-out test set. It only gets promoted to production if AUC is at or above 0.90 — a hard gate. This prevents a degraded model from going live just because it was scheduled to retrain. The segment thresholds — 0.33 and 0.66 — are reviewed jointly with marketing and finance each quarter based on campaign performance data. If the medium segment conversion rate is much higher than expected, the threshold might be tightened. If the high segment is too small to be operationally useful, the threshold might be lowered. These are business decisions, not model decisions."
+A/B Testing: new cohorts get randomly split into control and treatment. We measure loyalty rate and revenue per user at six months to establish causal impact — not just correlation. Campaign ROI feeds back into the threshold calibration."
 
 ---
 
